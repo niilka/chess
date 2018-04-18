@@ -35,6 +35,7 @@ body {
     justify-content: center;
     align-items: center;
     position: relative;
+    min-width: 800px;
 }
 
 .chess_table {
@@ -99,6 +100,20 @@ body {
     height: 81.2px;
     background-color: #f0f0f0;
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='4' height='4' viewBox='0 0 4 4'%3E%3Cpath fill='%23bababa' fill-opacity='0.4' d='M1 3h1v1H1V3zm2-2h1v1H3V1z'%3E%3C/path%3E%3C/svg%3E");
+}
+
+.figure {
+    cursor: pointer;
+    font-size: 50px;
+    width: 100%;
+    height: 100%;
+    padding-left: 17px;
+    &[team='black'] {
+        color: #f19066;
+    }
+    &[team='white'] {
+        color: #f1f2f6;
+    }
 }
 
 .cell:nth-child(1)~.cell:nth-child(-2n+8),

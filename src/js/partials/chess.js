@@ -2,7 +2,6 @@
 
 class Table {
     createField() {
-
         const tablePosition = document.getElementsByClassName('chess_table')[0];
 
         let appendCell = function (cell) {
@@ -16,6 +15,7 @@ class Table {
             appendCell(cell);
         }
         let chars = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']
+
         let ranges = {
             1: 1,
             2: 1,
@@ -73,5 +73,56 @@ class Table {
     }
 }
 
+class Figures extends Table {
+    getFigure(figure, color) {
+        const FIGURES_COLLECTION = {
+            king: {
+                white: '&#9812;',
+                black: '&#9818;'
+            },
+            queen: {
+                white: '&#9813;',
+                black: '&#9819;'
+            },
+            rook: {
+                white: '&#9814;',
+                black: '&#9820;'
+            },
+            bishop: {
+                white: '&#9815;',
+                black: '&#9821;'
+            },
+            knight: {
+                white: '&#9816;',
+                black: '&#9822;'
+            },
+            pawn: {
+                white: '&#9817;',
+                black: '&#9823;'
+            }
+        }
+
+        let newFigure = document.createElement('div');
+        newFigure.setAttribute('team', color);
+        newFigure.classList.add('figure');
+        newFigure.innerHTML = FIGURES_COLLECTION[figure][color];
+
+        return newFigure;
+    }
+
+    setFigure(cell, figure) {
+        let allCells = document.getElementsByClassName('cell');
+
+        [].forEach.call(allCells, checkedCell => {
+            if (checkedCell.getAttribute('cell') === cell) {
+                checkedCell.appendChild(figure);
+            }
+        });
+    }
+}
+
 let table = new Table();
 table.createField();
+let figures = new Figures();
+
+figures.setFigure('d6', figures.getFigure('queen', 'white'));
