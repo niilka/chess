@@ -100,6 +100,9 @@ body {
     height: 81.2px;
     background-color: #f0f0f0;
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='4' height='4' viewBox='0 0 4 4'%3E%3Cpath fill='%23bababa' fill-opacity='0.4' d='M1 3h1v1H1V3zm2-2h1v1H3V1z'%3E%3C/path%3E%3C/svg%3E");
+    &.highlight {
+        background-color: rgba(255, 92, 43, 0.61) !important;
+    }
 }
 
 .figure {
@@ -112,6 +115,7 @@ body {
     &[team='black'] {
         color: #000;
         font-weight: 800;
+        text-shadow: 1px 1px 0px rgba(2, 2, 2, 0.288), 0 0 0.1em rgba(255, 255, 255, 0.219);
     }
     &[team='white'] {
         color: #f1f2f6;
