@@ -23,61 +23,6 @@ class Field {
         return document.querySelectorAll('.figure');
     }
 
-    cellEventHandler(event) {
-        let currentCell = event.target;
-        let self = this;
-
-        function moveFigure(figure, cell) {
-            cell.appendChild(figure);
-            self.cellHighlight(false);
-        }
-
-        function isHighlighted(cell) {
-            if (cell.classList.contains('highlight'))
-                return true;
-            return false;
-        }
-
-        function isSelected() {
-            if (document.getElementsByClassName('selected').length)
-                return true;
-            return false
-        }
-
-        function getSelectedFigure() {
-            let figure = document.getElementsByClassName('selected')[0];
-            return figure;
-        }
-
-        if (isHighlighted(currentCell)) {
-            if (isSelected())
-                moveFigure(getSelectedFigure(), currentCell);
-        }
-
-    }
-
-    addCellEvent() {
-        Field.cells.forEach((cell) => {
-            cell.addEventListener('mousedown', (event) => {
-                this.cellEventHandler(event)
-            });
-        });
-    }
-
-    cellHighlight(highlitedCells) {
-        if (highlitedCells) {
-            Field.cells.forEach((cell) => {
-                let currentCell = cell.getAttribute('cell');
-                if (highlitedCells.indexOf(currentCell) !== -1)
-                    cell.classList.add('highlight')
-            });
-        } else {
-            Field.cells.forEach((cell) => {
-                cell.classList.remove('highlight');
-            });
-        }
-    }
-
     createField() { // Create field
         function addCell(cellName) { // Add new cell in chess board
             let newCell = document.createElement('div');
@@ -186,91 +131,154 @@ class Figures extends Field {
             }
         }
     }
+}
 
-    addFiguresEvent() {
-        Field.figures.forEach((figure) => {
-            figure.addEventListener('mousedown', (event) => {
-                this.figureEventHandler(event);
-            });
-        });
+class Cell extends Field {
+
+    moveFigure(cell, figure) {
+        cell.appendChild(figure);
+        Figure.cellsUnHightlight();
     }
 
-    figureEventHandler(event) {
-        function changeSelected(selectFigure) {
-            Field.figures.forEach((figure) => {
-                if (figure.classList.contains('selected'))
-                    figure.classList.remove('selected');
-            })
-            selectFigure.classList.toggle('selected');
-        };
-        event.preventDefault();
-        event.stopPropagation();
-        changeSelected(event.target);
-        this.figureListener(event.target);
+    isSelected() {
+        let selectedFigures = document.querySelectorAll('.selected');
+        if (selectedFigures.length > 0)
+            return selectedFigures[0];
     }
 
-    stepLogic(figureObject) {
-        switch (figureObject.figureName) {
-            case 'pawn':
-                super.cellHighlight(false);
-                super.cellHighlight(pawn(figureObject));
-                break;
-        }
-
-        function pawn(figureObject) {
-            let cellName = figureObject.cellName;
-            let team = figureObject.figureTeam;
-            let letter = cellName[0];
-            let number = parseInt(cellName[1]);
-            let steps = [];
-            if (team === 'white') {
-                steps = [letter + (number + 1), letter + (number + 2)];
-            } else {
-                steps = [letter + (number - 1), letter + (number - 2)];
-            }
-            return steps;
-        }
+    returnSelectedFigure() {
+        let selectedFigure = document.getElementsByClassName('selected')[0];
+        return selectedFigure;
     }
 
-    figureListener(figure) {
-        let figureObject = {
-            cellName: figure.parentNode.getAttribute('cell'),
-            figureName: figure.getAttribute('figure'),
-            figureTeam: figure.getAttribute('team')
-        }
-        this.stepLogic(figureObject);
+    isHighlighted(cell) {
+        if (cell.classList.contains('highlight'))
+            return true;
+        return false;
+    }
+
+    cellHandler(cell) {
+        if (this.isSelected())
+            if (this.isHighlighted(cell))
+                this.moveFigure(cell, this.returnSelectedFigure());
     }
 }
 
 class Figure extends Figures {
     constructor(figure) {
-        this.steps;
-        this.eats;
-        this.cell = figure.cellName;
-        this.team = figure.teamName;
-        this.figureName = figure.figureName;
+        super();
+        this.parseFigure(figure);
+        this.cellName;
+        this.figureName;
+        this.teamName;
     }
 
-    get steps() {
-        return this.steps;
+    get cell() {
+        return this.cellName;
     }
 
-    set steps(value) {
-        this.steps = value;
+    set cell(value) {
+        this.cellName = value;
     }
 
-    get eats() {
-        return this.eats;
+    get figure() {
+        return this.figureName;
     }
 
-    set eats(value) {
-        this.eats = value;
+    set figure(value) {
+        this.figureName = value;
+    }
+
+    get team() {
+        return this.teamName;
+    }
+
+    set team(value) {
+        this.teamName = value;
+    }
+
+    parseFigure(figure) {
+        this.cell = figure.parentNode.getAttribute('cell');
+        this.figure = figure.getAttribute('figure');
+        this.team = figure.getAttribute('team');
+        this.changeSelect(figure);
+    }
+
+    changeDeselect() {
+        let selectedCells = document.getElementsByClassName('selected');
+        if (selectedCells.length)
+            selectedCells[0].classList.remove('selected');
+    }
+
+    changeSelect(parentFigure) {
+        this.changeDeselect();
+        parentFigure.classList.toggle('selected');
+        this.calcMoves();
+    }
+
+    cellsHightlight(cells) {
+        Figure.cellsUnHightlight();
+        Field.cells.forEach((cell) => {
+            let currentCell = cell.getAttribute('cell');
+            if (cells.indexOf(currentCell) !== -1)
+                cell.classList.add('highlight')
+        });
+    };
+
+    static cellsUnHightlight() {
+        Field.cells.forEach((cell) => {
+            if (cell.classList.contains('highlight'))
+                cell.classList.remove('highlight');
+        });
+    };
+
+    calcMoves() {
+
+    }
+}
+
+class Pawn extends Figure {
+    constructor(figure) {
+        super(figure);
+    }
+    calcMoves() {
+        let self = this;
+        let steps = [];
+        let currentCell = this.cell;
+        let currentTeam = this.team;
+        steps.push(oneStep(currentCell));
+
+        function oneStep(cell) {
+            let newStep;
+            let cellLetter = cell[0];
+            let cellNumber = parseInt(cell[1]);
+            if (self.team === 'white')
+                newStep = cellLetter + ++cellNumber;
+            else
+                newStep = cellLetter + --cellNumber;
+            return newStep;
+        }
+        this.cellsHightlight(steps);
     }
 }
 
 let field = new Field();
 field.createField();
-field.addCellEvent();
 let figures = new Figures();
+let cellLogic = new Cell();
 figures.buildTeams();
-figures.addFiguresEvent();
+
+
+Field.figures.forEach((figure) => {
+    figure.addEventListener('click', (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        let figure = new Pawn(event.target);
+    });
+});
+
+Field.cells.forEach((cell) => {
+    cell.addEventListener('click', (event) => {
+        cellLogic.cellHandler(event.target);
+    });
+});
