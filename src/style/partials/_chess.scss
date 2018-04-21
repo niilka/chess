@@ -111,10 +111,11 @@ body {
     border: 3px solid transparent;
     &[team='black'] {
         color: #000;
-        text-shadow: 1px 1px 0px #fff, 0 0 0.1em #fff;
+        font-weight: 800;
     }
     &[team='white'] {
         color: #f1f2f6;
+        font-weight: 800;
         text-shadow: 1px 1px 0px #000, 0 0 0.1em #000;
     }
     &.selected {
